@@ -16,7 +16,6 @@ async function getShowsByTerm(term) {
   const res = await axios.get(`https://api.tvmaze.com/search/shows`, {params: {q: term}});
   const resData = res.data;
   const shows = [];
-console.log(resData);
 
   for (let obj of resData){
     const myShowObj = {id: obj.show.id, name: obj.show.name, summary: obj.show.summary, image: obj.show.image};
@@ -39,7 +38,7 @@ function populateShows(shows) {
       `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
-              src="https://tinyurl.com/tv-missing"
+              src="${show.image.original || 'https://tinyurl.com/tv-missing'}"
               alt="${show.name}"
               class="w-25 me-3">
            <div class="media-body">
@@ -68,6 +67,10 @@ async function searchForShowAndDisplay() {
 
   $episodesArea.hide();
   populateShows(shows);
+
+  for(let show of shows){
+    console.log(show);
+  }
 }
 
 $searchForm.on("submit", async function (evt) {
@@ -80,15 +83,39 @@ $searchForm.on("submit", async function (evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+async function getEpisodesOfShow(id) {
+  const episodeRes = await axios.get(`https://api.tvmaze.com/shows/${id}/episodes`);
+  const epResData = episodeRes.data;
+  const episodes = [];
+  
+
+  for (let obj of epResData){
+    const myShowObj = {id: obj.id, name: obj.name, season: obj.season, number: obj.number};
+    episodes.push(myShowObj);
+  }
+  return episodes;
+}
 
 /** Write a clear docstring for this function... */
 
-// function populateEpisodes(episodes) { }
+function populateEpisodes(episodes) {
+  for (let ep of episodes){
+    const $episode = $(`<li>${ep.name}</li>`);
+    console.log($episode)
+    $('#episodesList').append($episode);
+  }
+};
 
+$showsList.on('click', $('.Show-getEpisodes'), async (e) => {
+ e.preventDefault;
+ $episodesArea.css('display', 'initial');
+ const showId = $(e.target).closest('.Show').data('show-id');
+ const episodes = await getEpisodesOfShow(showId);
 
+ populateEpisodes(episodes);
+});
 
-
+// (${ep.season, ep.name})
 
 // return [
 //   {
