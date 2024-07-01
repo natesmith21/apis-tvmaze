@@ -3,7 +3,7 @@
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
-
+const $episodesList = $('#episodesList')
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -17,6 +17,7 @@ async function getShowsByTerm(term) {
   const resData = res.data;
   const shows = [];
 
+  // check back on 'map' function, which they used in solution
   for (let obj of resData){
     const myShowObj = {id: obj.show.id, name: obj.show.name, summary: obj.show.summary, image: obj.show.image};
     shows.push(myShowObj);
@@ -67,10 +68,6 @@ async function searchForShowAndDisplay() {
 
   $episodesArea.hide();
   populateShows(shows);
-
-  for(let show of shows){
-    console.log(show);
-  }
 }
 
 $searchForm.on("submit", async function (evt) {
@@ -99,16 +96,18 @@ async function getEpisodesOfShow(id) {
 /** Write a clear docstring for this function... */
 
 function populateEpisodes(episodes) {
+  $episodesList.empty();
+
   for (let ep of episodes){
-    const $episode = $(`<li>${ep.name}</li>`);
-    console.log($episode)
-    $('#episodesList').append($episode);
+    const $episode = $(`<li>${ep.name} (season ${ep.season}, episode ${ep.number})</li>`);
+    $episodesList.append($episode);
   }
+
+  $episodesArea.show();
 };
 
 $showsList.on('click', $('.Show-getEpisodes'), async (e) => {
  e.preventDefault;
- $episodesArea.css('display', 'initial');
  const showId = $(e.target).closest('.Show').data('show-id');
  const episodes = await getEpisodesOfShow(showId);
 
